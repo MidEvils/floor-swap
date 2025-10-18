@@ -1,7 +1,0 @@
-{
-  // "rust-analyzer.files.exclude": ["clients/rust"]
-  // "files.watcherExclude": {
-  //   "path": true,
-  //   "paths": []
-  // }
-}
