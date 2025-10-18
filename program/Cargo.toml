@@ -1,0 +1,31 @@
+[package]
+name = "floor-swap"
+version = "0.0.0"
+edition = "2021"
+readme = "./README.md"
+license-file = "../LICENSE"
+publish = false
+
+[features]
+custom-panic = []
+custom-heap = []
+
+[package.metadata.solana]
+program-id = "H8cyHcVnXenuL24BMcv4AdJrFgAGRKBTb1Tcx7hqZKTs"
+program-dependencies = [
+  "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+]
+account-dependencies = []
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+borsh = "^0.10"
+shank = "^0.4.2"
+num-derive = "^0.3"
+num-traits = "^0.2"
+solana-program = "~2.0"
+thiserror = "^1.0"
+strum = { version = "0.26.1", features = ["derive"] }
+mpl-core = "*"

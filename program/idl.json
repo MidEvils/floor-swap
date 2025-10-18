@@ -1,0 +1,454 @@
+{
+  "version": "0.0.0",
+  "name": "floor_swap",
+  "instructions": [
+    {
+      "name": "Create",
+      "accounts": [
+        {
+          "name": "pool",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The program derived address of the Pool account to create (seeds: ['floor_swap', collection])"
+          ]
+        },
+        {
+          "name": "collection",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The mpl-core collection"
+          ]
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true,
+          "docs": [
+            "The authority of the pool"
+          ]
+        },
+        {
+          "name": "treasury",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The treasury where fees are sent"
+          ]
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The account paying for the storage fees"
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The system program"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "feeAmount",
+          "type": "u64"
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 0
+      }
+    },
+    {
+      "name": "SetActive",
+      "accounts": [
+        {
+          "name": "pool",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The program derived address of the Pool account to toggle (seeds: ['floor_swap', collection])"
+          ]
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true,
+          "docs": [
+            "The authority of the app"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "active",
+          "type": "bool"
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 1
+      }
+    },
+    {
+      "name": "SetFee",
+      "accounts": [
+        {
+          "name": "pool",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The program derived address of the Pool account (seeds: ['floor_swap', collection])"
+          ]
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true,
+          "docs": [
+            "The authority of the app"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "feeAmount",
+          "type": "u64"
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 2
+      }
+    },
+    {
+      "name": "Swap",
+      "accounts": [
+        {
+          "name": "pool",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The program derived address of the Pool account to toggle (seeds: ['floor_swap', collection])"
+          ]
+        },
+        {
+          "name": "sourceAsset",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The mpl asset to send to the protocol"
+          ]
+        },
+        {
+          "name": "destAsset",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The mpl asset to receive from the protocol"
+          ]
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The user performing the swap"
+          ]
+        },
+        {
+          "name": "treasury",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The treasury where fees are sent"
+          ]
+        },
+        {
+          "name": "collection",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The collection of the pool"
+          ]
+        },
+        {
+          "name": "coreProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The MPL Core program"
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The system program"
+          ]
+        }
+      ],
+      "args": [],
+      "discriminant": {
+        "type": "u8",
+        "value": 3
+      }
+    },
+    {
+      "name": "Deposit",
+      "accounts": [
+        {
+          "name": "pool",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The PDA of the Pool account (seeds: ['floor_swap', collection])"
+          ]
+        },
+        {
+          "name": "asset",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The mpl-core asset to deposit"
+          ]
+        },
+        {
+          "name": "collection",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The collection of the asset"
+          ]
+        },
+        {
+          "name": "payer",
+          "isMut": false,
+          "isSigner": true,
+          "docs": [
+            "The user depositing the asset"
+          ]
+        },
+        {
+          "name": "coreProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The MPL Core program"
+          ]
+        }
+      ],
+      "args": [],
+      "discriminant": {
+        "type": "u8",
+        "value": 4
+      }
+    },
+    {
+      "name": "Withdraw",
+      "accounts": [
+        {
+          "name": "pool",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The PDA of the Pool account (seeds: ['floor_swap', collection])"
+          ]
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true,
+          "docs": [
+            "The authority of the pool"
+          ]
+        },
+        {
+          "name": "asset",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The mpl-core asset to deposit"
+          ]
+        },
+        {
+          "name": "collection",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The collection of the asset"
+          ]
+        },
+        {
+          "name": "destination",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": true,
+          "docs": [
+            "The wallet to receive the asset"
+          ]
+        },
+        {
+          "name": "coreProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The MPL Core program"
+          ]
+        }
+      ],
+      "args": [],
+      "discriminant": {
+        "type": "u8",
+        "value": 5
+      }
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Pool",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "key",
+            "type": {
+              "defined": "Key"
+            }
+          },
+          {
+            "name": "collection",
+            "type": "publicKey"
+          },
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "treasury",
+            "type": "publicKey"
+          },
+          {
+            "name": "feeAmount",
+            "type": "u64"
+          },
+          {
+            "name": "enabled",
+            "type": "bool"
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "Key",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Uninitialized"
+          },
+          {
+            "name": "Pool"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 0,
+      "name": "DeserializationError",
+      "msg": "Error deserializing an account"
+    },
+    {
+      "code": 1,
+      "name": "SerializationError",
+      "msg": "Error serializing an account"
+    },
+    {
+      "code": 2,
+      "name": "InvalidProgramOwner",
+      "msg": "Invalid program owner. This likely mean the provided account does not exist"
+    },
+    {
+      "code": 3,
+      "name": "InvalidPda",
+      "msg": "Invalid PDA derivation"
+    },
+    {
+      "code": 4,
+      "name": "ExpectedEmptyAccount",
+      "msg": "Expected empty account"
+    },
+    {
+      "code": 5,
+      "name": "ExpectedNonEmptyAccount",
+      "msg": "Expected non empty account"
+    },
+    {
+      "code": 6,
+      "name": "ExpectedSignerAccount",
+      "msg": "Expected signer account"
+    },
+    {
+      "code": 7,
+      "name": "ExpectedWritableAccount",
+      "msg": "Expected writable account"
+    },
+    {
+      "code": 8,
+      "name": "AccountMismatch",
+      "msg": "Account mismatch"
+    },
+    {
+      "code": 9,
+      "name": "InvalidAccountKey",
+      "msg": "Invalid account key"
+    },
+    {
+      "code": 10,
+      "name": "NumericalOverflow",
+      "msg": "Numerical overflow"
+    },
+    {
+      "code": 11,
+      "name": "ExpectedMplCoreCollection",
+      "msg": "Expected MPL Core Collection"
+    },
+    {
+      "code": 12,
+      "name": "ExpectedMplCoreAsset",
+      "msg": "Expected MPL Core Asset"
+    },
+    {
+      "code": 13,
+      "name": "InvalidCollectionForAsset",
+      "msg": "Invalid collection for asset"
+    },
+    {
+      "code": 14,
+      "name": "InvalidAssetOwner",
+      "msg": "Invalid owner for asset"
+    },
+    {
+      "code": 15,
+      "name": "PoolInactive",
+      "msg": "Pool inactive"
+    }
+  ],
+  "metadata": {
+    "origin": "shank",
+    "address": "H8cyHcVnXenuL24BMcv4AdJrFgAGRKBTb1Tcx7hqZKTs",
+    "binaryVersion": "0.4.5",
+    "libVersion": "^0.4.2"
+  }
+}
