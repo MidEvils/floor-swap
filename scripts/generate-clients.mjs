@@ -6,7 +6,7 @@ import { renderVisitor as renderJavaScriptVisitor } from '@codama/renderers-js';
 import { renderVisitor as renderRustVisitor } from '@codama/renderers-rust';
 import { getAllProgramIdls } from './utils.mjs';
 
-// Instanciate Codama.
+// Instantiate Codama.
 const [idl, ...additionalIdls] = getAllProgramIdls().map((idl) =>
   rootNodeFromAnchor(require(idl))
 );
@@ -69,14 +69,5 @@ const jsClient = path.join(__dirname, '..', 'clients', 'js');
 codama.accept(
   renderJavaScriptVisitor(path.join(jsClient, 'src', 'generated'), {
     prettierOptions: require(path.join(jsClient, '.prettierrc.json')),
-  })
-);
-
-// Render Rust.
-const rustClient = path.join(__dirname, '..', 'clients', 'rust');
-codama.accept(
-  renderRustVisitor(path.join(rustClient, 'src', 'generated'), {
-    formatCode: true,
-    crateFolder: rustClient,
   })
 );
