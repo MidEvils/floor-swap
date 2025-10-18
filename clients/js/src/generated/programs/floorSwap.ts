@@ -23,7 +23,7 @@ import {
 import { getKeyEncoder, Key } from '../types';
 
 export const FLOOR_SWAP_PROGRAM_ADDRESS =
-  'H8cyHcVnXenuL24BMcv4AdJrFgAGRKBTb1Tcx7hqZKTs' as Address<'H8cyHcVnXenuL24BMcv4AdJrFgAGRKBTb1Tcx7hqZKTs'>;
+  'FSWAP98yr51moUvni9iv32ptFY43KEPBBkNk28tZunr7' as Address<'FSWAP98yr51moUvni9iv32ptFY43KEPBBkNk28tZunr7'>;
 
 export enum FloorSwapAccount {
   Pool,
@@ -78,7 +78,7 @@ export function identifyFloorSwapInstruction(
 }
 
 export type ParsedFloorSwapInstruction<
-  TProgram extends string = 'H8cyHcVnXenuL24BMcv4AdJrFgAGRKBTb1Tcx7hqZKTs',
+  TProgram extends string = 'FSWAP98yr51moUvni9iv32ptFY43KEPBBkNk28tZunr7',
 > =
   | ({
       instructionType: FloorSwapInstruction.Create;

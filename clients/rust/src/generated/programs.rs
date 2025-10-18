@@ -8,4 +8,4 @@
 use solana_pubkey::{pubkey, Pubkey};
 
 /// `floor_swap` program ID.
-pub const FLOOR_SWAP_ID: Pubkey = pubkey!("H8cyHcVnXenuL24BMcv4AdJrFgAGRKBTb1Tcx7hqZKTs");
+pub const FLOOR_SWAP_ID: Pubkey = pubkey!("FSWAP98yr51moUvni9iv32ptFY43KEPBBkNk28tZunr7");
