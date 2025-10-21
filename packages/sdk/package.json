@@ -1,6 +1,6 @@
 {
   "name": "@midevils/swap",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "JavaScript client for the FloorSwap program",
   "sideEffects": false,
   "module": "./dist/src/index.mjs",
