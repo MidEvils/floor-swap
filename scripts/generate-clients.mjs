@@ -30,6 +30,11 @@ codama.update(
           c.publicKeyTypeNode(),
           'The authority of the pool'
         ),
+        c.variablePdaSeedNode(
+          'collection',
+          c.publicKeyTypeNode(),
+          'The collection of the pool'
+        ),
       ],
     },
   })
@@ -65,12 +70,7 @@ codama.update(
 );
 
 // Render JavaScript.
-const jsClient = path.join(
-  __dirname,
-  '..',
-  'packages',
-  'sdk',
-);
+const jsClient = path.join(__dirname, '..', 'packages', 'sdk');
 codama.accept(
   renderJavaScriptVisitor(path.join(jsClient, 'src', 'generated'), {
     prettierOptions: require(path.join(jsClient, '.prettierrc.json')),

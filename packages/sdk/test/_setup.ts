@@ -109,7 +109,7 @@ export const createPoolForAuthority = async (
 ): Promise<ProgramDerivedAddress> => {
   const [transaction, counterPda, createIx] = await Promise.all([
     createDefaultTransaction(client, authority),
-    findPoolPda({ authority: authority.address }),
+    findPoolPda({ authority: authority.address, collection }),
     getCreateInstructionAsync({
       authority,
       collection,

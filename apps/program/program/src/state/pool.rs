@@ -27,12 +27,12 @@ pub struct Pool {
 impl Pool {
     pub const LEN: usize = 1 + 32 + 32 + 32 + 8 + 1;
 
-    pub fn seeds(authority: &Pubkey) -> Vec<&[u8]> {
-        vec![PREFIX.as_bytes(), authority.as_ref()]
+    pub fn seeds<'a>(authority: &'a Pubkey, collection: &'a Pubkey) -> Vec<&'a [u8]> {
+        vec![PREFIX.as_bytes(), authority.as_ref(), collection.as_ref()]
     }
 
-    pub fn find_pda(authority: &Pubkey) -> (Pubkey, u8) {
-        Pubkey::find_program_address(&Self::seeds(authority), &crate::ID)
+    pub fn find_pda(authority: &Pubkey, collection: &Pubkey) -> (Pubkey, u8) {
+        Pubkey::find_program_address(&Self::seeds(authority, collection), &crate::ID)
     }
 
     pub fn load(account: &AccountInfo) -> Result<Self, ProgramError> {

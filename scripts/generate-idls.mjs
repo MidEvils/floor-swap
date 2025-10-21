@@ -3,11 +3,16 @@ import 'zx/globals';
 import { generateIdl } from '@metaplex-foundation/shank-js';
 import { getCargo, getProgramFolders } from './utils.mjs';
 
-const binaryInstallDir = path.join(__dirname, '..', 'apps', 'program', '.cargo');
+const binaryInstallDir = path.join(
+  __dirname,
+  '..',
+  'apps',
+  'program',
+  '.cargo'
+);
 
 getProgramFolders().forEach((folder) => {
   const cargo = getCargo(folder);
-  console.log({cargo})
   const isShank = Object.keys(cargo.dependencies).includes('shank');
   const programDir = path.join(__dirname, '..', 'apps', 'program', folder);
 

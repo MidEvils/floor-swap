@@ -45,8 +45,6 @@ export function getProgramFolders() {
     programs = getAllProgramFolders();
   }
 
-  console.log(programs);
-
   const filteredPrograms = programs.filter((program) =>
     fs.existsSync(path.join(workingDirectory, 'apps', 'program', program))
   );

@@ -17,6 +17,8 @@ import {
 export type PoolSeeds = {
   /** The authority of the pool */
   authority: Address;
+  /** The collection of the pool */
+  collection: Address;
 };
 
 export async function findPoolPda(
@@ -31,6 +33,7 @@ export async function findPoolPda(
     seeds: [
       getUtf8Encoder().encode('floor_swap'),
       getAddressEncoder().encode(seeds.authority),
+      getAddressEncoder().encode(seeds.collection),
     ],
   });
 }

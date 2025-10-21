@@ -50,6 +50,7 @@ test('it creates a new pool account', async (t) => {
   // Then we expect the counter account to exist and have a value of 0.
   const pool = await fetchPoolFromSeeds(client.rpc, {
     authority: authority.address,
+    collection,
   });
   t.like(pool, <Account<Pool>>{
     data: {

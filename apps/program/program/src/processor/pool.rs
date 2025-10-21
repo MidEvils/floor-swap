@@ -23,7 +23,7 @@ pub(crate) fn create<'a>(accounts: &'a [AccountInfo<'a>], fee_amount: u64) -> Pr
         "pool",
         ctx.accounts.pool,
         &crate::ID,
-        &Pool::seeds(ctx.accounts.authority.key),
+        &Pool::seeds(ctx.accounts.authority.key, ctx.accounts.collection.key),
     )?;
     assert_mpl_core_collection("collection", ctx.accounts.collection)?;
 
@@ -50,7 +50,7 @@ pub(crate) fn create<'a>(accounts: &'a [AccountInfo<'a>], fee_amount: u64) -> Pr
         fee_amount,
         enabled: false,
     };
-    let mut seeds = Pool::seeds(ctx.accounts.authority.key);
+    let mut seeds = Pool::seeds(ctx.accounts.authority.key, ctx.accounts.collection.key);
     let bump = [bump];
     seeds.push(&bump);
     create_account(
@@ -130,10 +130,10 @@ pub(crate) fn swap<'a>(accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
         "pool",
         ctx.accounts.pool,
         &crate::ID,
-        &Pool::seeds(&pool.authority),
+        &Pool::seeds(&pool.authority, &pool.collection),
     )?;
 
-    let mut seeds = Pool::seeds(&pool.authority);
+    let mut seeds = Pool::seeds(&pool.authority, &pool.collection);
     let bump = [bump];
     seeds.push(&bump);
 
@@ -202,10 +202,10 @@ pub(crate) fn withdraw<'a>(accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
         "pool",
         ctx.accounts.pool,
         &crate::ID,
-        &Pool::seeds(ctx.accounts.authority.key),
+        &Pool::seeds(ctx.accounts.authority.key, ctx.accounts.collection.key),
     )?;
 
-    let mut seeds = Pool::seeds(ctx.accounts.authority.key);
+    let mut seeds = Pool::seeds(ctx.accounts.authority.key, ctx.accounts.collection.key);
     let bump = [bump];
     seeds.push(&bump);
 

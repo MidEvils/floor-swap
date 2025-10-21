@@ -53,6 +53,7 @@ test('it can change the fee for a pool', async (t) => {
 
   const pool = await fetchPoolFromSeeds(client.rpc, {
     authority: authority.address,
+    collection,
   });
 
   t.like(pool, <Account<Pool>>{

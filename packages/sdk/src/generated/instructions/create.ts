@@ -199,6 +199,7 @@ export async function getCreateInstructionAsync<
   if (!accounts.pool.value) {
     accounts.pool.value = await findPoolPda({
       authority: expectAddress(accounts.authority.value),
+      collection: expectAddress(accounts.collection.value),
     });
   }
   if (!accounts.payer.value) {

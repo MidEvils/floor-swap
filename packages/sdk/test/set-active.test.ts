@@ -53,6 +53,7 @@ test('it can activate a pool', async (t) => {
 
   const pool = await fetchPoolFromSeeds(client.rpc, {
     authority: authority.address,
+    collection,
   });
 
   t.like(pool, <Account<Pool>>{
@@ -137,6 +138,7 @@ test('it can deactivate a pool', async (t) => {
 
   let pool = await fetchPoolFromSeeds(client.rpc, {
     authority: authority.address,
+    collection,
   });
 
   t.like(pool, <Account<Pool>>{
@@ -161,6 +163,7 @@ test('it can deactivate a pool', async (t) => {
 
   pool = await fetchPoolFromSeeds(client.rpc, {
     authority: authority.address,
+    collection,
   });
 
   t.like(pool, <Account<Pool>>{
