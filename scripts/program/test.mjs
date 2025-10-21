@@ -17,7 +17,12 @@ const hasSolfmt = await which('solfmt', { nothrow: true });
 
 // Test the programs.
 for (const folder of getProgramFolders()) {
-  const manifestPath = path.join(workingDirectory, folder, 'Cargo.toml');
+  const manifestPath = path.join(
+    workingDirectory,
+    'apps/program',
+    folder,
+    'Cargo.toml'
+  );
 
   if (hasSolfmt) {
     await $`RUST_LOG=error cargo test-sbf --manifest-path ${manifestPath} ${testArgs} 2>&1 | solfmt`;
