@@ -19,7 +19,12 @@ const toolchain = getToolchainArgument('format');
 
 // Format the programs.
 for (const folder of getProgramFolders()) {
-  const manifestPath = path.join(workingDirectory, folder, 'Cargo.toml');
+  const manifestPath = path.join(
+    workingDirectory,
+    'apps/program',
+    folder,
+    'Cargo.toml'
+  );
 
   if (fix) {
     await $`cargo ${toolchain} fmt --manifest-path ${manifestPath} ${cargoArgs} -- ${fmtArgs}`;
