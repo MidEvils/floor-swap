@@ -63,7 +63,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: program-builds
-          path: ./target/deploy/*.so
+          path: ./apps/program/target/deploy/*.so
           if-no-files-found: error
 
       - name: Save Client Artifacts
@@ -71,7 +71,7 @@ jobs:
         with:
           path: |
             ./**/*.so
-            ./target/deploy/*.json
+            ./apps/program/target/deploy/*.json
           key: ${{ runner.os }}-builds-${{ github.sha }}
 
   test_programs:
@@ -153,7 +153,7 @@ jobs:
         with:
           path: |
             ./**/*.so
-            ./target/deploy/*.json
+            ./apps/program/target/deploy/*.json
           key: ${{ runner.os }}-builds-${{ github.sha }}
 
       - name: Test Client JS
