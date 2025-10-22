@@ -1,6 +1,11 @@
 {
+<<<<<<< Updated upstream
   "name": "@midevils/swap",
   "version": "0.0.2",
+=======
+  "name": "@midevils/sdk",
+  "version": "0.0.1",
+>>>>>>> Stashed changes
   "description": "JavaScript client for the FloorSwap program",
   "sideEffects": false,
   "module": "./dist/src/index.mjs",
