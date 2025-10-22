@@ -23,7 +23,7 @@
     "clients:js:test": "zx ./scripts/client/test-js.mjs"
   },
   "keywords": [],
-  "author": "",
+  "author": "Joe Fitter <hello@joefitter.com>",
   "license": "ISC",
   "packageManager": "pnpm@10.18.3",
   "dependencies": {
