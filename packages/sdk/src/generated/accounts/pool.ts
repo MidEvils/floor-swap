@@ -19,6 +19,8 @@ import {
   getBooleanEncoder,
   getStructDecoder,
   getStructEncoder,
+  getU16Decoder,
+  getU16Encoder,
   getU64Decoder,
   getU64Encoder,
   transformEncoder,
@@ -49,6 +51,7 @@ export type Pool = {
   treasury: Address;
   feeAmount: bigint;
   enabled: boolean;
+  numAssets: number;
 };
 
 export type PoolArgs = {
@@ -57,6 +60,7 @@ export type PoolArgs = {
   treasury: Address;
   feeAmount: number | bigint;
   enabled: boolean;
+  numAssets: number;
 };
 
 export function getPoolEncoder(): FixedSizeEncoder<PoolArgs> {
@@ -68,6 +72,7 @@ export function getPoolEncoder(): FixedSizeEncoder<PoolArgs> {
       ['treasury', getAddressEncoder()],
       ['feeAmount', getU64Encoder()],
       ['enabled', getBooleanEncoder()],
+      ['numAssets', getU16Encoder()],
     ]),
     (value) => ({ ...value, key: POOL_KEY })
   );
@@ -81,6 +86,7 @@ export function getPoolDecoder(): FixedSizeDecoder<Pool> {
     ['treasury', getAddressDecoder()],
     ['feeAmount', getU64Decoder()],
     ['enabled', getBooleanDecoder()],
+    ['numAssets', getU16Decoder()],
   ]);
 }
 
@@ -142,7 +148,7 @@ export async function fetchAllMaybePool(
 }
 
 export function getPoolSize(): number {
-  return 106;
+  return 108;
 }
 
 export async function fetchPoolFromSeeds(

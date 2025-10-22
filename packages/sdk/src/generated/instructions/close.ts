@@ -10,8 +10,6 @@ import {
   combineCodec,
   getStructDecoder,
   getStructEncoder,
-  getU64Decoder,
-  getU64Encoder,
   getU8Decoder,
   getU8Encoder,
   transformEncoder,
@@ -24,6 +22,7 @@ import {
   type Instruction,
   type InstructionWithAccounts,
   type InstructionWithData,
+  type ReadonlyAccount,
   type ReadonlySignerAccount,
   type ReadonlyUint8Array,
   type TransactionSigner,
@@ -32,16 +31,19 @@ import {
 import { FLOOR_SWAP_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const SET_FEE_DISCRIMINATOR = 2;
+export const CLOSE_DISCRIMINATOR = 6;
 
-export function getSetFeeDiscriminatorBytes() {
-  return getU8Encoder().encode(SET_FEE_DISCRIMINATOR);
+export function getCloseDiscriminatorBytes() {
+  return getU8Encoder().encode(CLOSE_DISCRIMINATOR);
 }
 
-export type SetFeeInstruction<
+export type CloseInstruction<
   TProgram extends string = typeof FLOOR_SWAP_PROGRAM_ADDRESS,
   TAccountPool extends string | AccountMeta<string> = string,
   TAccountAuthority extends string | AccountMeta<string> = string,
+  TAccountSystemProgram extends
+    | string
+    | AccountMeta<string> = '11111111111111111111111111111111',
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
   InstructionWithData<ReadonlyUint8Array> &
@@ -54,63 +56,65 @@ export type SetFeeInstruction<
         ? ReadonlySignerAccount<TAccountAuthority> &
             AccountSignerMeta<TAccountAuthority>
         : TAccountAuthority,
+      TAccountSystemProgram extends string
+        ? ReadonlyAccount<TAccountSystemProgram>
+        : TAccountSystemProgram,
       ...TRemainingAccounts,
     ]
   >;
 
-export type SetFeeInstructionData = {
-  discriminator: number;
-  feeAmount: bigint;
-};
+export type CloseInstructionData = { discriminator: number };
 
-export type SetFeeInstructionDataArgs = { feeAmount: number | bigint };
+export type CloseInstructionDataArgs = {};
 
-export function getSetFeeInstructionDataEncoder(): FixedSizeEncoder<SetFeeInstructionDataArgs> {
+export function getCloseInstructionDataEncoder(): FixedSizeEncoder<CloseInstructionDataArgs> {
   return transformEncoder(
-    getStructEncoder([
-      ['discriminator', getU8Encoder()],
-      ['feeAmount', getU64Encoder()],
-    ]),
-    (value) => ({ ...value, discriminator: SET_FEE_DISCRIMINATOR })
+    getStructEncoder([['discriminator', getU8Encoder()]]),
+    (value) => ({ ...value, discriminator: CLOSE_DISCRIMINATOR })
   );
 }
 
-export function getSetFeeInstructionDataDecoder(): FixedSizeDecoder<SetFeeInstructionData> {
-  return getStructDecoder([
-    ['discriminator', getU8Decoder()],
-    ['feeAmount', getU64Decoder()],
-  ]);
+export function getCloseInstructionDataDecoder(): FixedSizeDecoder<CloseInstructionData> {
+  return getStructDecoder([['discriminator', getU8Decoder()]]);
 }
 
-export function getSetFeeInstructionDataCodec(): FixedSizeCodec<
-  SetFeeInstructionDataArgs,
-  SetFeeInstructionData
+export function getCloseInstructionDataCodec(): FixedSizeCodec<
+  CloseInstructionDataArgs,
+  CloseInstructionData
 > {
   return combineCodec(
-    getSetFeeInstructionDataEncoder(),
-    getSetFeeInstructionDataDecoder()
+    getCloseInstructionDataEncoder(),
+    getCloseInstructionDataDecoder()
   );
 }
 
-export type SetFeeInput<
+export type CloseInput<
   TAccountPool extends string = string,
   TAccountAuthority extends string = string,
+  TAccountSystemProgram extends string = string,
 > = {
-  /** The program derived address of the Pool account (seeds: ['floor_swap', authority, collection]) */
+  /** The PDA of the Pool account (seeds: ['floor_swap', authority, collection]) */
   pool: Address<TAccountPool>;
-  /** The authority of the app */
+  /** The authority of the pool */
   authority: TransactionSigner<TAccountAuthority>;
-  feeAmount: SetFeeInstructionDataArgs['feeAmount'];
+  /** The system program */
+  systemProgram?: Address<TAccountSystemProgram>;
 };
 
-export function getSetFeeInstruction<
+export function getCloseInstruction<
   TAccountPool extends string,
   TAccountAuthority extends string,
+  TAccountSystemProgram extends string,
   TProgramAddress extends Address = typeof FLOOR_SWAP_PROGRAM_ADDRESS,
 >(
-  input: SetFeeInput<TAccountPool, TAccountAuthority>,
+  input: CloseInput<TAccountPool, TAccountAuthority, TAccountSystemProgram>,
   config?: { programAddress?: TProgramAddress }
-): SetFeeInstruction<TProgramAddress, TAccountPool, TAccountAuthority> {
+): CloseInstruction<
+  TProgramAddress,
+  TAccountPool,
+  TAccountAuthority,
+  TAccountSystemProgram
+> {
   // Program address.
   const programAddress = config?.programAddress ?? FLOOR_SWAP_PROGRAM_ADDRESS;
 
@@ -118,51 +122,61 @@ export function getSetFeeInstruction<
   const originalAccounts = {
     pool: { value: input.pool ?? null, isWritable: true },
     authority: { value: input.authority ?? null, isWritable: false },
+    systemProgram: { value: input.systemProgram ?? null, isWritable: false },
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
     ResolvedAccount
   >;
 
-  // Original args.
-  const args = { ...input };
+  // Resolve default values.
+  if (!accounts.systemProgram.value) {
+    accounts.systemProgram.value =
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+  }
 
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
       getAccountMeta(accounts.pool),
       getAccountMeta(accounts.authority),
+      getAccountMeta(accounts.systemProgram),
     ],
-    data: getSetFeeInstructionDataEncoder().encode(
-      args as SetFeeInstructionDataArgs
-    ),
+    data: getCloseInstructionDataEncoder().encode({}),
     programAddress,
-  } as SetFeeInstruction<TProgramAddress, TAccountPool, TAccountAuthority>);
+  } as CloseInstruction<
+    TProgramAddress,
+    TAccountPool,
+    TAccountAuthority,
+    TAccountSystemProgram
+  >);
 }
 
-export type ParsedSetFeeInstruction<
+export type ParsedCloseInstruction<
   TProgram extends string = typeof FLOOR_SWAP_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
   programAddress: Address<TProgram>;
   accounts: {
-    /** The program derived address of the Pool account (seeds: ['floor_swap', authority, collection]) */
+    /** The PDA of the Pool account (seeds: ['floor_swap', authority, collection]) */
     pool: TAccountMetas[0];
-    /** The authority of the app */
+    /** The authority of the pool */
     authority: TAccountMetas[1];
+    /** The system program */
+    systemProgram: TAccountMetas[2];
   };
-  data: SetFeeInstructionData;
+  data: CloseInstructionData;
 };
 
-export function parseSetFeeInstruction<
+export function parseCloseInstruction<
   TProgram extends string,
   TAccountMetas extends readonly AccountMeta[],
 >(
   instruction: Instruction<TProgram> &
     InstructionWithAccounts<TAccountMetas> &
     InstructionWithData<ReadonlyUint8Array>
-): ParsedSetFeeInstruction<TProgram, TAccountMetas> {
-  if (instruction.accounts.length < 2) {
+): ParsedCloseInstruction<TProgram, TAccountMetas> {
+  if (instruction.accounts.length < 3) {
     // TODO: Coded error.
     throw new Error('Not enough accounts');
   }
@@ -174,7 +188,11 @@ export function parseSetFeeInstruction<
   };
   return {
     programAddress: instruction.programAddress,
-    accounts: { pool: getNextAccount(), authority: getNextAccount() },
-    data: getSetFeeInstructionDataDecoder().decode(instruction.data),
+    accounts: {
+      pool: getNextAccount(),
+      authority: getNextAccount(),
+      systemProgram: getNextAccount(),
+    },
+    data: getCloseInstructionDataDecoder().decode(instruction.data),
   };
 }

@@ -46,6 +46,8 @@ export const FLOOR_SWAP_ERROR__INVALID_COLLECTION_FOR_ASSET = 0xd; // 13
 export const FLOOR_SWAP_ERROR__INVALID_ASSET_OWNER = 0xe; // 14
 /** PoolInactive: Pool inactive */
 export const FLOOR_SWAP_ERROR__POOL_INACTIVE = 0xf; // 15
+/** PoolNotEmpty: Pool not empty */
+export const FLOOR_SWAP_ERROR__POOL_NOT_EMPTY = 0x10; // 16
 
 export type FloorSwapError =
   | typeof FLOOR_SWAP_ERROR__ACCOUNT_MISMATCH
@@ -63,6 +65,7 @@ export type FloorSwapError =
   | typeof FLOOR_SWAP_ERROR__INVALID_PROGRAM_OWNER
   | typeof FLOOR_SWAP_ERROR__NUMERICAL_OVERFLOW
   | typeof FLOOR_SWAP_ERROR__POOL_INACTIVE
+  | typeof FLOOR_SWAP_ERROR__POOL_NOT_EMPTY
   | typeof FLOOR_SWAP_ERROR__SERIALIZATION_ERROR;
 
 let floorSwapErrorMessages: Record<FloorSwapError, string> | undefined;
@@ -83,6 +86,7 @@ if (process.env.NODE_ENV !== 'production') {
     [FLOOR_SWAP_ERROR__INVALID_PROGRAM_OWNER]: `Invalid program owner. This likely mean the provided account does not exist`,
     [FLOOR_SWAP_ERROR__NUMERICAL_OVERFLOW]: `Numerical overflow`,
     [FLOOR_SWAP_ERROR__POOL_INACTIVE]: `Pool inactive`,
+    [FLOOR_SWAP_ERROR__POOL_NOT_EMPTY]: `Pool not empty`,
     [FLOOR_SWAP_ERROR__SERIALIZATION_ERROR]: `Error serializing an account`,
   };
 }

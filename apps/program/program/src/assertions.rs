@@ -46,6 +46,21 @@ pub fn assert_pool_active(pool: &Pool, account: &AccountInfo) -> ProgramResult {
     }
 }
 
+/// Assert the pool is empty, used to check before closing
+pub fn assert_pool_empty(pool: &Pool, account: &AccountInfo) -> ProgramResult {
+    if pool.num_assets != 0 {
+        msg!(
+            "Account \"{}\" [{}] expected pool to be empty, contains {} items",
+            "pool",
+            account.key,
+            pool.num_assets
+        );
+        Err(FloorSwapError::PoolNotEmpty.into())
+    } else {
+        Ok(())
+    }
+}
+
 /// Assert that the given account is owned by the given program.
 pub fn assert_program_owner(
     account_name: &str,

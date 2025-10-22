@@ -38,5 +38,9 @@ pub fn process_instruction<'a>(
             msg!("Instruction: Withdraw");
             withdraw(accounts)
         }
+        AppInstruction::Close => {
+            msg!("Instruction: Close");
+            close(accounts)
+        }
     }
 }

@@ -4,15 +4,17 @@ use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, syste
 
 use crate::assertions::{
     assert_asset_owner, assert_mpl_core_asset, assert_mpl_core_collection, assert_pda,
-    assert_pool_active, assert_program_owner, assert_same_pubkeys, assert_signer, assert_writable,
+    assert_pool_active, assert_pool_empty, assert_program_owner, assert_same_pubkeys,
+    assert_signer, assert_writable,
 };
+use crate::error::FloorSwapError;
 use crate::instruction::accounts::{
-    CreateAccounts, DepositAccounts, SetActiveAccounts, SetFeeAccounts, SwapAccounts,
-    WithdrawAccounts,
+    CloseAccounts, CreateAccounts, DepositAccounts, SetActiveAccounts, SetFeeAccounts,
+    SwapAccounts, WithdrawAccounts,
 };
 use crate::state::pool::Pool;
 use crate::state::Key;
-use crate::utils::{create_account, pay_fee};
+use crate::utils::{close_account, create_account, pay_fee};
 
 pub(crate) fn create<'a>(accounts: &'a [AccountInfo<'a>], fee_amount: u64) -> ProgramResult {
     // Accounts.
@@ -49,6 +51,7 @@ pub(crate) fn create<'a>(accounts: &'a [AccountInfo<'a>], fee_amount: u64) -> Pr
         treasury: *ctx.accounts.treasury.key,
         fee_amount,
         enabled: false,
+        num_assets: 0,
     };
     let mut seeds = Pool::seeds(ctx.accounts.authority.key, ctx.accounts.collection.key);
     let bump = [bump];
@@ -166,7 +169,7 @@ pub(crate) fn deposit<'a>(accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
     assert_writable("payer", ctx.accounts.payer)?;
     assert_signer("payer", ctx.accounts.payer)?;
 
-    let pool = Pool::load(ctx.accounts.pool)?;
+    let mut pool = Pool::load(ctx.accounts.pool)?;
     assert_mpl_core_collection("collection", ctx.accounts.collection)?;
     assert_same_pubkeys("collection", ctx.accounts.collection, &pool.collection)?;
     assert_mpl_core_asset("asset", ctx.accounts.asset, &pool.collection)?;
@@ -177,7 +180,13 @@ pub(crate) fn deposit<'a>(accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
         .collection(Some(ctx.accounts.collection))
         .payer(ctx.accounts.payer)
         .authority(Some(ctx.accounts.payer))
-        .invoke()
+        .invoke()?;
+
+    pool.num_assets = pool
+        .num_assets
+        .checked_add(1)
+        .ok_or(FloorSwapError::NumericalOverflow)?;
+    pool.save(ctx.accounts.pool)
 }
 
 pub(crate) fn withdraw<'a>(accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
@@ -185,7 +194,7 @@ pub(crate) fn withdraw<'a>(accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
     let ctx = WithdrawAccounts::context(accounts)?;
 
     // Guards.
-    let pool = Pool::load(ctx.accounts.pool)?;
+    let mut pool = Pool::load(ctx.accounts.pool)?;
 
     let asset = assert_mpl_core_asset("asset", ctx.accounts.asset, &pool.collection)?;
     assert_mpl_core_collection("collection", ctx.accounts.collection)?;
@@ -217,5 +226,24 @@ pub(crate) fn withdraw<'a>(accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
         .collection(Some(ctx.accounts.collection))
         .payer(ctx.accounts.authority)
         .authority(Some(ctx.accounts.pool))
-        .invoke_signed(&[&seeds])
+        .invoke_signed(&[&seeds])?;
+
+    // We allow a withdrawal even if num_assets is zero, this is because
+    // it's possible assets were sent to the pool not using the deposit ix
+    pool.num_assets = pool.num_assets.checked_sub(1).unwrap_or(0);
+    pool.save(ctx.accounts.pool)
+}
+
+pub(crate) fn close<'a>(accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
+    let ctx = CloseAccounts::context(accounts)?;
+    let pool = Pool::load(ctx.accounts.pool)?;
+
+    assert_pool_empty(&pool, ctx.accounts.pool)?;
+
+    assert_same_pubkeys("authority", ctx.accounts.authority, &pool.authority)?;
+    assert_signer("authority", ctx.accounts.authority)?;
+
+    close_account(ctx.accounts.pool, ctx.accounts.authority)?;
+
+    Ok(())
 }

@@ -118,7 +118,7 @@ export type SwapInput<
   TAccountCoreProgram extends string = string,
   TAccountSystemProgram extends string = string,
 > = {
-  /** The program derived address of the Pool account to toggle (seeds: ['floor_swap', collection]) */
+  /** The program derived address of the Pool account to toggle (seeds: ['floor_swap', authority, collection]) */
   pool: Address<TAccountPool>;
   /** The mpl asset to send to the protocol */
   sourceAsset: Address<TAccountSourceAsset>;
@@ -227,7 +227,7 @@ export type ParsedSwapInstruction<
 > = {
   programAddress: Address<TProgram>;
   accounts: {
-    /** The program derived address of the Pool account to toggle (seeds: ['floor_swap', collection]) */
+    /** The program derived address of the Pool account to toggle (seeds: ['floor_swap', authority, collection]) */
     pool: TAccountMetas[0];
     /** The mpl asset to send to the protocol */
     sourceAsset: TAccountMetas[1];

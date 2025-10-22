@@ -96,7 +96,7 @@ export type SetActiveInput<
   TAccountPool extends string = string,
   TAccountAuthority extends string = string,
 > = {
-  /** The program derived address of the Pool account to toggle (seeds: ['floor_swap', collection]) */
+  /** The program derived address of the Pool account to toggle (seeds: ['floor_swap', authority, collection]) */
   pool: Address<TAccountPool>;
   /** The authority of the app */
   authority: TransactionSigner<TAccountAuthority>;
@@ -146,7 +146,7 @@ export type ParsedSetActiveInstruction<
 > = {
   programAddress: Address<TProgram>;
   accounts: {
-    /** The program derived address of the Pool account to toggle (seeds: ['floor_swap', collection]) */
+    /** The program derived address of the Pool account to toggle (seeds: ['floor_swap', authority, collection]) */
     pool: TAccountMetas[0];
     /** The authority of the app */
     authority: TAccountMetas[1];

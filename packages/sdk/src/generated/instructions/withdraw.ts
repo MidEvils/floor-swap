@@ -51,7 +51,7 @@ export type WithdrawInstruction<
   InstructionWithAccounts<
     [
       TAccountPool extends string
-        ? ReadonlyAccount<TAccountPool>
+        ? WritableAccount<TAccountPool>
         : TAccountPool,
       TAccountAuthority extends string
         ? ReadonlySignerAccount<TAccountAuthority> &
@@ -106,7 +106,7 @@ export type WithdrawInput<
   TAccountDestination extends string = string,
   TAccountCoreProgram extends string = string,
 > = {
-  /** The PDA of the Pool account (seeds: ['floor_swap', collection]) */
+  /** The PDA of the Pool account (seeds: ['floor_swap', authority, collection]) */
   pool: Address<TAccountPool>;
   /** The authority of the pool */
   authority: TransactionSigner<TAccountAuthority>;
@@ -152,7 +152,7 @@ export function getWithdrawInstruction<
 
   // Original accounts.
   const originalAccounts = {
-    pool: { value: input.pool ?? null, isWritable: false },
+    pool: { value: input.pool ?? null, isWritable: true },
     authority: { value: input.authority ?? null, isWritable: false },
     asset: { value: input.asset ?? null, isWritable: true },
     collection: { value: input.collection ?? null, isWritable: false },
@@ -193,7 +193,7 @@ export type ParsedWithdrawInstruction<
 > = {
   programAddress: Address<TProgram>;
   accounts: {
-    /** The PDA of the Pool account (seeds: ['floor_swap', collection]) */
+    /** The PDA of the Pool account (seeds: ['floor_swap', authority, collection]) */
     pool: TAccountMetas[0];
     /** The authority of the pool */
     authority: TAccountMetas[1];

@@ -56,6 +56,9 @@ pub enum FloorSwapError {
     /// 15 - Pool inactive
     #[error("Pool inactive")]
     PoolInactive,
+    /// 15 - Pool not empty
+    #[error("Pool not empty")]
+    PoolNotEmpty,
 }
 
 impl PrintProgramError for FloorSwapError {

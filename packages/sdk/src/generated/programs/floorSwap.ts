@@ -13,6 +13,7 @@ import {
   type ReadonlyUint8Array,
 } from '@solana/kit';
 import {
+  type ParsedCloseInstruction,
   type ParsedCreateInstruction,
   type ParsedDepositInstruction,
   type ParsedSetActiveInstruction,
@@ -48,6 +49,7 @@ export enum FloorSwapInstruction {
   Swap,
   Deposit,
   Withdraw,
+  Close,
 }
 
 export function identifyFloorSwapInstruction(
@@ -71,6 +73,9 @@ export function identifyFloorSwapInstruction(
   }
   if (containsBytes(data, getU8Encoder().encode(5), 0)) {
     return FloorSwapInstruction.Withdraw;
+  }
+  if (containsBytes(data, getU8Encoder().encode(6), 0)) {
+    return FloorSwapInstruction.Close;
   }
   throw new Error(
     'The provided instruction could not be identified as a floorSwap instruction.'
@@ -97,4 +102,7 @@ export type ParsedFloorSwapInstruction<
     } & ParsedDepositInstruction<TProgram>)
   | ({
       instructionType: FloorSwapInstruction.Withdraw;
-    } & ParsedWithdrawInstruction<TProgram>);
+    } & ParsedWithdrawInstruction<TProgram>)
+  | ({
+      instructionType: FloorSwapInstruction.Close;
+    } & ParsedCloseInstruction<TProgram>);

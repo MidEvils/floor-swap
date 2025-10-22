@@ -22,10 +22,11 @@ pub struct Pool {
     pub treasury: Pubkey,
     pub fee_amount: u64,
     pub enabled: bool,
+    pub num_assets: u16,
 }
 
 impl Pool {
-    pub const LEN: usize = 1 + 32 + 32 + 32 + 8 + 1;
+    pub const LEN: usize = 1 + 32 + 32 + 32 + 8 + 1 + 2;
 
     pub fn seeds<'a>(authority: &'a Pubkey, collection: &'a Pubkey) -> Vec<&'a [u8]> {
         vec![PREFIX.as_bytes(), authority.as_ref(), collection.as_ref()]

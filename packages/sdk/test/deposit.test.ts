@@ -17,9 +17,11 @@ import {
   SOLANA_ERROR__JSON_RPC__SERVER_ERROR_SEND_TRANSACTION_PREFLIGHT_FAILURE,
 } from '@solana/kit';
 import {
+  fetchPool,
   FLOOR_SWAP_ERROR__INVALID_COLLECTION_FOR_ASSET,
   FLOOR_SWAP_PROGRAM_ADDRESS,
   getDepositInstruction,
+  Pool,
 } from '../src';
 import {
   AssetV1,
@@ -63,6 +65,14 @@ test('it can deposit an asset into the pool', async (t) => {
   t.like(asset, <Account<AssetV1>>{
     data: {
       owner: poolPda,
+    },
+  });
+
+  const pool = await fetchPool(client.rpc, poolPda);
+
+  t.like(pool, <Account<Pool>>{
+    data: {
+      numAssets: 1,
     },
   });
 });
@@ -115,4 +125,12 @@ test('it cannot deposit an asset from the wrong collection into the pool', async
       FLOOR_SWAP_ERROR__INVALID_COLLECTION_FOR_ASSET
     )
   );
+
+  const pool = await fetchPool(client.rpc, poolPda);
+
+  t.like(pool, <Account<Pool>>{
+    data: {
+      numAssets: 0,
+    },
+  });
 });

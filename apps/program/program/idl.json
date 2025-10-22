@@ -10,7 +10,7 @@
           "isMut": true,
           "isSigner": false,
           "docs": [
-            "The program derived address of the Pool account to create (seeds: ['floor_swap', collection])"
+            "The program derived address of the Pool account to create (seeds: ['floor_swap', authority, collection])"
           ]
         },
         {
@@ -73,7 +73,7 @@
           "isMut": true,
           "isSigner": false,
           "docs": [
-            "The program derived address of the Pool account to toggle (seeds: ['floor_swap', collection])"
+            "The program derived address of the Pool account to toggle (seeds: ['floor_swap', authority, collection])"
           ]
         },
         {
@@ -104,7 +104,7 @@
           "isMut": true,
           "isSigner": false,
           "docs": [
-            "The program derived address of the Pool account (seeds: ['floor_swap', collection])"
+            "The program derived address of the Pool account (seeds: ['floor_swap', authority, collection])"
           ]
         },
         {
@@ -135,7 +135,7 @@
           "isMut": false,
           "isSigner": false,
           "docs": [
-            "The program derived address of the Pool account to toggle (seeds: ['floor_swap', collection])"
+            "The program derived address of the Pool account to toggle (seeds: ['floor_swap', authority, collection])"
           ]
         },
         {
@@ -206,10 +206,10 @@
       "accounts": [
         {
           "name": "pool",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "docs": [
-            "The PDA of the Pool account (seeds: ['floor_swap', collection])"
+            "The PDA of the Pool account (seeds: ['floor_swap', authority, collection])"
           ]
         },
         {
@@ -256,10 +256,10 @@
       "accounts": [
         {
           "name": "pool",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "docs": [
-            "The PDA of the Pool account (seeds: ['floor_swap', collection])"
+            "The PDA of the Pool account (seeds: ['floor_swap', authority, collection])"
           ]
         },
         {
@@ -309,6 +309,40 @@
         "type": "u8",
         "value": 5
       }
+    },
+    {
+      "name": "Close",
+      "accounts": [
+        {
+          "name": "pool",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The PDA of the Pool account (seeds: ['floor_swap', authority, collection])"
+          ]
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true,
+          "docs": [
+            "The authority of the pool"
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The system program"
+          ]
+        }
+      ],
+      "args": [],
+      "discriminant": {
+        "type": "u8",
+        "value": 6
+      }
     }
   ],
   "accounts": [
@@ -342,6 +376,10 @@
           {
             "name": "enabled",
             "type": "bool"
+          },
+          {
+            "name": "numAssets",
+            "type": "u16"
           }
         ]
       }
@@ -443,6 +481,11 @@
       "code": 15,
       "name": "PoolInactive",
       "msg": "Pool inactive"
+    },
+    {
+      "code": 16,
+      "name": "PoolNotEmpty",
+      "msg": "Pool not empty"
     }
   ],
   "metadata": {

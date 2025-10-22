@@ -50,7 +50,7 @@ export type DepositInstruction<
   InstructionWithAccounts<
     [
       TAccountPool extends string
-        ? ReadonlyAccount<TAccountPool>
+        ? WritableAccount<TAccountPool>
         : TAccountPool,
       TAccountAsset extends string
         ? WritableAccount<TAccountAsset>
@@ -101,7 +101,7 @@ export type DepositInput<
   TAccountPayer extends string = string,
   TAccountCoreProgram extends string = string,
 > = {
-  /** The PDA of the Pool account (seeds: ['floor_swap', collection]) */
+  /** The PDA of the Pool account (seeds: ['floor_swap', authority, collection]) */
   pool: Address<TAccountPool>;
   /** The mpl-core asset to deposit */
   asset: Address<TAccountAsset>;
@@ -142,7 +142,7 @@ export function getDepositInstruction<
 
   // Original accounts.
   const originalAccounts = {
-    pool: { value: input.pool ?? null, isWritable: false },
+    pool: { value: input.pool ?? null, isWritable: true },
     asset: { value: input.asset ?? null, isWritable: true },
     collection: { value: input.collection ?? null, isWritable: false },
     payer: { value: input.payer ?? null, isWritable: false },
@@ -180,7 +180,7 @@ export type ParsedDepositInstruction<
 > = {
   programAddress: Address<TProgram>;
   accounts: {
-    /** The PDA of the Pool account (seeds: ['floor_swap', collection]) */
+    /** The PDA of the Pool account (seeds: ['floor_swap', authority, collection]) */
     pool: TAccountMetas[0];
     /** The mpl-core asset to deposit */
     asset: TAccountMetas[1];
