@@ -5,10 +5,12 @@ on:
     branches: [main]
     paths:
       - 'apps/program/**'
+      - '.github/workflows/program.yml'
   pull_request:
     branches: [main]
     paths:
       - 'apps/program/**'
+      - '.github/workflows/program.yml'
 
 jobs:
   format_and_lint_programs:
