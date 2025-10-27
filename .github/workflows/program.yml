@@ -11,6 +11,7 @@ on:
     paths:
       - 'apps/program/**'
       - '.github/workflows/program.yml'
+  workflow_dispatch:
 
 jobs:
   format_and_lint_programs:
