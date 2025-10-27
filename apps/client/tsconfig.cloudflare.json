@@ -6,8 +6,7 @@
     "app/**/.server/**/*",
     "app/**/.client/**/*",
     "workers/**/*",
-    "worker-configuration.d.ts",
-    "../../packages/sdk/sdks/mpl-core"
+    "worker-configuration.d.ts"
   ],
   "compilerOptions": {
     "composite": true,
