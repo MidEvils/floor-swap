@@ -1,5 +1,5 @@
 {
-  "name": "@midevils/swap",
+  "name": "@midevils/sdk",
   "version": "0.0.2",
   "description": "JavaScript client for the FloorSwap program",
   "sideEffects": false,

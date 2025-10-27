@@ -7,3 +7,9 @@
 node_modules
 test-ledger
 dist
+.dev.vars
+.env
+.react-router
+.wrangler
+.vscode
+build

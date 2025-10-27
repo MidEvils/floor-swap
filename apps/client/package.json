@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "react-router build",
+    "build": "NODE_ENV=dev react-router build",
     "cf-typegen": "wrangler types",
     "deploy": "pnpm build && wrangler deploy",
     "dev": "react-router dev",
@@ -13,13 +13,20 @@
   },
   "dependencies": {
     "@midevils/sdk": "workspace:*",
+    "@midevils/shared": "workspace:*",
+    "@solana-program/system": "^0.9.0",
     "@solana/kit": "^4.0.0",
+    "@solana/react": "^5.0.0",
+    "@solana/transaction-confirmation": "^4.0.0",
     "@wallet-ui/react": "^2.0.0",
     "@wallet-ui/tailwind": "^2.0.0",
+    "clsx": "^2.1.1",
     "gill": "^0.12.0",
+    "helius-sdk": "^2.0.2",
     "isbot": "^5.1.31",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-hot-toast": "^2.6.0",
     "react-router": "^7.9.2"
   },
   "devDependencies": {
@@ -29,6 +36,7 @@
     "@types/node": "^22",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
+    "daisyui": "^5.3.9",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2",
     "vite": "^7.1.7",

@@ -1,18 +1,26 @@
-import { WebSocketServer } from './dos';
+import { TxsListener, WebSocketServer } from './dos';
 
 export * from './dos';
 
 declare global {
-	interface Env {
-		WEB_SOCKET_SERVER: DurableObjectNamespace<WebSocketServer>;
-	}
+  interface Env {
+    WEB_SOCKET_SERVER: DurableObjectNamespace<WebSocketServer>;
+    TXS_LISTENER: DurableObjectNamespace<TxsListener>;
+  }
 }
 
 export default {
-	async fetch(request, env, ctx): Promise<Response> {
-		const stub = env.WEB_SOCKET_SERVER.getByName('foo');
-		const greeting = await stub.getAssets();
+  async fetch(request, env, ctx): Promise<Response> {
+    const wsServer = WebSocketServer.getInstance(env);
 
-		return new Response(JSON.stringify(greeting), { headers: { 'Content-Type': 'application/json' } });
-	},
+    try {
+      // Forward the request to the WebSocketServer
+      const response = await wsServer.fetch(request);
+      console.log('WebSocket router: Response status:', response.status);
+      return response;
+    } catch (error) {
+      console.error('WebSocket router: Error:', error);
+      return new Response('WebSocket connection failed', { status: 500 });
+    }
+  },
 } satisfies ExportedHandler<Env>;

@@ -1,0 +1,17 @@
+{
+  "name": "@midevils/shared",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.18.3",
+  "dependencies": {
+    "gill": "^0.12.0",
+    "helius-sdk": "^2.0.2"
+  }
+}
