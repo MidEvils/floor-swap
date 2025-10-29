@@ -24,6 +24,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: 'apps/client'
           wranglerVersion: '4.8.0'
           packageManager: pnpm
-          command: 'pnpm --filter client run deploy'
+          preCommands: 'pnpm build'
