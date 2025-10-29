@@ -8,17 +8,34 @@ import {
   type PropsWithChildren,
 } from 'react';
 
-const Context = createContext<Asset[] | undefined>(undefined);
+export enum WebSocketState {
+  'CONNECTING',
+  'OPEN',
+  'CLOSING',
+  'CLOSED',
+}
+
+const Context = createContext<
+  | {
+      assets: Asset[];
+      refresh: () => void;
+      loading: boolean;
+      status: WebSocketState;
+    }
+  | undefined
+>(undefined);
 
 export const PoolProvider = ({
   children,
   wsUrl,
 }: PropsWithChildren<{ wsUrl: string }>) => {
+  const [loading, setLoading] = useState(false);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const pingInterval = useRef<ReturnType<typeof setInterval>>(null);
 
   function connectToWs(wsUrl: string) {
+    setLoading(true);
     const socket = new WebSocket(wsUrl);
 
     socket.onmessage = (msg) => {
@@ -31,9 +48,19 @@ export const PoolProvider = ({
 
       const parsed = JSON.parse(msg.data);
       setAssets(parsed);
+      setLoading(false);
     };
 
     return socket;
+  }
+
+  function refresh() {
+    if (socket) {
+      setLoading(true);
+      socket.send('refresh');
+    } else {
+      connectToWs(wsUrl);
+    }
   }
 
   function ping(ws: WebSocket) {
@@ -73,7 +100,20 @@ export const PoolProvider = ({
     };
   }, [wsUrl, socket?.readyState]);
 
-  return <Context.Provider value={assets}>{children}</Context.Provider>;
+  return (
+    <Context.Provider
+      value={{
+        assets,
+        refresh,
+        loading,
+        status: socket
+          ? (socket?.readyState as WebSocketState)
+          : WebSocketState.CLOSED,
+      }}
+    >
+      {children}
+    </Context.Provider>
+  );
 };
 
 export const usePool = () => {

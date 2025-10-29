@@ -17,12 +17,14 @@ import {
   getBase64EncodedWireTransaction,
   getSolanaErrorFromTransactionError,
   isSolanaError,
+  pipe,
   signature,
   SOLANA_ERROR__BLOCK_HEIGHT_EXCEEDED,
   SOLANA_ERROR__RPC_SUBSCRIPTIONS__CHANNEL_CONNECTION_CLOSED,
   type Address,
   type Instruction,
   type Signature,
+  type SignatureBytes,
   type Transaction,
   type TransactionMessage,
   type TransactionSendingSigner,
@@ -31,6 +33,7 @@ import {
 import { createBlockHeightExceedencePromiseFactory } from '@solana/transaction-confirmation';
 import type { Client } from '~/context/rpc';
 import { CORE_PROGRAM_ADDRESS } from '@midevils/shared';
+import { chunk } from 'lodash-es';
 
 export async function deposit({
   client,
@@ -49,17 +52,19 @@ export async function deposit({
     return;
   }
 
-  const ixs = assets.map((asset) =>
-    getDepositInstruction({
-      asset,
-      payer: signer,
-      pool,
-      collection,
-      coreProgram: CORE_PROGRAM_ADDRESS,
-    })
+  const ixs = chunk(assets, 23).map((assets) =>
+    assets.map((asset) =>
+      getDepositInstruction({
+        asset,
+        payer: signer,
+        pool,
+        collection,
+        coreProgram: CORE_PROGRAM_ADDRESS,
+      })
+    )
   );
 
-  await sendTx(client, signer, ixs);
+  await sendTxs(client, signer, ixs);
 }
 
 export async function withdraw({
@@ -79,17 +84,19 @@ export async function withdraw({
     return;
   }
 
-  const ixs = assets.map((asset) =>
-    getWithdrawInstruction({
-      asset,
-      authority: signer,
-      pool,
-      collection,
-      coreProgram: CORE_PROGRAM_ADDRESS,
-    })
+  const ixs = chunk(assets, 23).map((assets) =>
+    assets.map((asset) =>
+      getWithdrawInstruction({
+        asset,
+        authority: signer,
+        pool,
+        collection,
+        coreProgram: CORE_PROGRAM_ADDRESS,
+      })
+    )
   );
 
-  await sendTx(client, signer, ixs);
+  await sendTxs(client, signer, ixs);
 }
 
 export async function swap({
@@ -107,7 +114,19 @@ export async function swap({
   destAsset: Address;
   signer: TransactionSendingSigner;
 }) {
-  const poolAcc = await fetchPool(client.rpc, pool);
+  const [poolAcc, balance] = await Promise.all([
+    fetchPool(client.rpc, pool),
+    client.rpc.getBalance(signer.address).send(),
+  ]);
+
+  if (balance.value < poolAcc.data.feeAmount + 5000n) {
+    throw new Error(
+      `Insufficient balance for swap, please ensure you have at least ${
+        poolAcc.data.feeAmount / 10n ** 9n
+      } SOL swap fee, plus a small amount to cover Solana transaction fee`
+    );
+  }
+
   const ix = getSwapInstruction({
     pool,
     payer: signer,
@@ -118,7 +137,7 @@ export async function swap({
     coreProgram: CORE_PROGRAM_ADDRESS,
   });
 
-  await sendTx(client, signer, [ix]);
+  await sendTxs(client, signer, [[ix]]);
 }
 
 export async function setActive({
@@ -138,7 +157,7 @@ export async function setActive({
     active,
   });
 
-  await sendTx(client, signer, [ix]);
+  await sendTxs(client, signer, [[ix]]);
 }
 
 export async function closePool({
@@ -155,7 +174,7 @@ export async function closePool({
     pool,
   });
 
-  await sendTx(client, signer, [ix]);
+  await sendTxs(client, signer, [[ix]]);
 }
 
 export async function setFee({
@@ -175,76 +194,89 @@ export async function setFee({
     feeAmount,
   });
 
-  await sendTx(client, signer, [ix]);
+  await sendTxs(client, signer, [[ix]]);
 }
 
-async function sendTx(
+async function sendTxs(
   client: Client,
   signer: TransactionSendingSigner,
-  ixs: Instruction[]
+  ixGroups: Instruction[][]
 ) {
   const { value: latestBlockhash } = await client.rpc
     .getLatestBlockhash()
     .send();
 
-  const tx = createTransaction({
-    feePayer: signer,
-    version: 0,
-    instructions: ixs,
-    latestBlockhash,
-  });
+  const txs = ixGroups.map((ixs) =>
+    createTransaction({
+      feePayer: signer,
+      version: 0,
+      instructions: ixs,
+      latestBlockhash,
+    })
+  );
 
-  const sendableTx = compileTransaction(tx);
+  await Promise.all(
+    txs.map(async (tx) => {
+      try {
+        const sim = await client.rpc
+          .simulateTransaction(
+            getBase64EncodedWireTransaction(compileTransaction(tx)),
+            {
+              encoding: 'base64',
+            }
+          )
+          .send();
 
-  try {
-    const sim = await client.rpc
-      .simulateTransaction(getBase64EncodedWireTransaction(sendableTx), {
-        encoding: 'base64',
-      })
-      .send();
-
-    if (sim.value.err) {
-      throw getSolanaErrorFromTransactionError(sim.value.err);
-    }
-
-    const [sig] = await signer.signAndSendTransactions([sendableTx]);
-
-    const base58Signature = getBase58Decoder().decode(
-      sig as Uint8Array<ArrayBufferLike>
-    );
-
-    console.log(base58Signature);
-
-    await confirmTx(client, signature(base58Signature), tx);
-  } catch (e) {
-    if (isSolanaError(e)) {
-      if (isFloorSwapError(e, tx)) {
-        const message = getFloorSwapErrorMessage(e.context.code);
-        if (message.includes('Invalid owner for asset')) {
-          throw new Error(
-            'Invalid owner for asset: Please wait for previous tx to be finalized, or refresh if the problem persists'
-          );
+        if (sim.value?.err) {
+          throw getSolanaErrorFromTransactionError(sim.value.err);
+        } else {
+          if ((sim as any).error) {
+            throw (sim as any).error.message;
+          }
         }
-        throw new Error(message);
-      } else if (isSolanaError(e, SOLANA_ERROR__BLOCK_HEIGHT_EXCEEDED)) {
-        throw new Error('Tx expired');
-      }
-    }
+      } catch (e) {
+        if (isSolanaError(e)) {
+          if (isFloorSwapError(e, tx)) {
+            const message = getFloorSwapErrorMessage(e.context.code);
+            console.log(message);
+            if (message.includes('Invalid owner for asset')) {
+              throw new Error(
+                'Invalid owner for asset: Please wait for previous tx to be finalized, or refresh if the problem persists'
+              );
+            }
+            throw new Error(message);
+          } else if (isSolanaError(e, SOLANA_ERROR__BLOCK_HEIGHT_EXCEEDED)) {
+            throw new Error('Tx expired');
+          }
+        }
 
-    throw e;
-  }
+        throw e;
+      }
+    })
+  );
+
+  const sigs = await signer.signAndSendTransactions(
+    txs.map(compileTransaction)
+  );
+
+  await Promise.all(
+    sigs.map((sig, index) => confirmTx(client, sig, txs[index]))
+  );
 }
 
 async function confirmTx(
   client: Client,
-  sig: Signature,
+  sig: SignatureBytes,
   tx: TransactionMessage & TransactionWithBlockhashLifetime
 ) {
   const abortController = new AbortController();
-  const signNotifications = await client.ws
-    .signatureNotifications(sig, {
-      commitment: 'confirmed',
-    })
+  const sigNotifications = await client.ws
+    .signatureNotifications(
+      signature(getBase58Decoder().decode(sig as Uint8Array<ArrayBufferLike>)),
+      {
+        commitment: 'confirmed',
+      }
+    )
     .subscribe({ abortSignal: abortController.signal });
 
   const confirm = createBlockHeightExceedencePromiseFactory({
@@ -253,7 +285,7 @@ async function confirmTx(
   });
 
   try {
-    for await (const notification of signNotifications) {
+    for await (const notification of sigNotifications) {
       console.log(notification);
       if (notification.value.err) {
         throw getSolanaErrorFromTransactionError(notification.value.err);
@@ -311,5 +343,5 @@ export async function createPool({
     feeAmount,
   });
 
-  await sendTx(client, authority, [createIx]);
+  await sendTxs(client, authority, [[createIx]]);
 }

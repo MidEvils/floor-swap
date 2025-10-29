@@ -16,7 +16,9 @@ export const FramedImg = ({
     >
       <div className="md:h-[90%] h-[70%] aspect-[5/6] bg-cover bg-[url(/frame.png)] flex items-center justify-center">
         <div
-          style={{ backgroundImage: `url(${asset.content?.links?.image})` }}
+          style={{
+            backgroundImage: `url(https://img-cdn.magiceden.dev/rs:fill:400:400:0:0/plain/${asset.content?.links?.image})`,
+          }}
           className="w-[70%] aspect-[5/6.5] bg-center bg-size-[127%] bg-no-repeat"
         />
       </div>

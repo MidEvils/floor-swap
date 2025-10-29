@@ -5,7 +5,6 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useOutletContext,
   useRouteLoaderData,
 } from 'react-router';
 import { Toaster } from 'react-hot-toast';
@@ -19,6 +18,7 @@ import { findPoolPda } from '@midevils/sdk';
 import { address } from 'gill';
 import { RpcProvider } from './context/rpc';
 import { PoolProvider } from './context/pool';
+import { ConnectionStatus } from './components/Connected';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -57,8 +57,9 @@ export const loader = async ({ context }: Route.LoaderArgs) => {
 };
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { authority, collection, rpcUrl, pool, wsUrl } =
-    useRouteLoaderData('root');
+  const loaderData = useRouteLoaderData('root') || {};
+
+  const { authority, collection, rpcUrl, pool, wsUrl } = loaderData;
 
   return (
     <html lang="en" className="h-full">
@@ -71,14 +72,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body className="bg-gradient-to-b from-[#2E1804] to-[#4B2603] h-full flex flex-col">
         <PoolProvider wsUrl={wsUrl}>
           <WalletUiProvider>
-            <RpcProvider rpcUrl={rpcUrl}>
+            <RpcProvider rpcUrl={rpcUrl || ''}>
               <SettingsProvider
                 collection={collection}
                 authority={authority}
                 pool={pool}
               >
                 <Header authority={authority} />
-                <main className="py-10 px-10 h-full w-full">{children}</main>
+                <main className="py-10 px-10 w-full overflow-hidden">
+                  {children}
+                </main>
               </SettingsProvider>
             </RpcProvider>
           </WalletUiProvider>

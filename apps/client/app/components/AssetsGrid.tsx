@@ -19,18 +19,27 @@ const PoolAsset = ({
   account?: UiWalletAccount;
 }) => {
   const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(false);
 
   const onClose = useCallback(() => {
     setOpen(false);
   }, [setOpen]);
+
+  const onMouseEnter = useCallback(() => {
+    setActive(true);
+  }, [setActive]);
+
+  const onMouseLeave = useCallback(() => {
+    setActive(false);
+  }, [setActive]);
 
   return (
     <Modal
       open={open}
       setOpen={setOpen}
       trigger={
-        <div>
-          <Asset asset={asset} />
+        <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+          <Asset asset={asset} active={active} triggerLabel="Swap" />
           <div
             className={clsx(
               'bg-[#DBBD8A] text-black border-2 border-t-0 py-2 font-bold',
@@ -47,12 +56,6 @@ const PoolAsset = ({
         </div>
       }
     >
-      <button
-        className="cursor-pointer btn btn-lg btn-circle absolute right-10 top-10 block md:hidden z-50"
-        onClick={onClose}
-      >
-        ✕
-      </button>
       {account ? (
         <Swap account={account} toAsset={asset} onClose={onClose} />
       ) : (
@@ -66,21 +69,23 @@ const PoolAsset = ({
 
 export const AssetsGrid = ({ size }: { size: 'large' | 'small' }) => {
   const { account } = useWalletUiAccount();
-  const assets = usePool();
+  const { assets } = usePool();
 
   return (
     <AssetsProvider owner={account?.address}>
-      <div
-        className={clsx('grid  gap-2 items-start grid-rows', {
-          'xl:grid-cols-6 lg:grid-cols-4 sm:grid-cols-3 md:grid-cols-4 grid-cols-1':
-            size === 'large',
-          'xl:grid-cols-14 lg:grid-cols-12 sm:grid-cols-6 md:grid-cols-9 grid-cols-2':
-            size === 'small',
-        })}
-      >
-        {assets.map((asset) => (
-          <PoolAsset asset={asset} size={size} account={account} />
-        ))}
+      <div className="overflow-y-scroll pt-[3px]">
+        <div
+          className={clsx('grid  gap-2 items-start grid-rows', {
+            'xl:grid-cols-6 lg:grid-cols-4 sm:grid-cols-3 md:grid-cols-4 grid-cols-1':
+              size === 'large',
+            'xl:grid-cols-14 lg:grid-cols-12 sm:grid-cols-6 md:grid-cols-9 grid-cols-2':
+              size === 'small',
+          })}
+        >
+          {assets.map((asset) => (
+            <PoolAsset asset={asset} size={size} account={account} />
+          ))}
+        </div>
       </div>
     </AssetsProvider>
   );

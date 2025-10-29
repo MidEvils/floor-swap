@@ -17,12 +17,15 @@ type Pages = {
   "/admin": {
     params: {};
   };
+  "/.well-known/appspecific/com.chrome.devtools.json": {
+    params: {};
+  };
 };
 
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/admin";
+    page: "/" | "/admin" | "/.well-known/appspecific/com.chrome.devtools.json";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -32,10 +35,15 @@ type RouteFiles = {
     id: "routes/admin";
     page: "/admin";
   };
+  "routes/debug-null.tsx": {
+    id: "routes/debug-null";
+    page: "/.well-known/appspecific/com.chrome.devtools.json";
+  };
 };
 
 type RouteModules = {
   "root": typeof import("./app/root.tsx");
   "routes/home": typeof import("./app/routes/home.tsx");
   "routes/admin": typeof import("./app/routes/admin.tsx");
+  "routes/debug-null": typeof import("./app/routes/debug-null.tsx");
 };

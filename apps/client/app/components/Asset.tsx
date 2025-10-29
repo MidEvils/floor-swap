@@ -25,17 +25,16 @@ export const Asset = ({
         <div
           className="w-full relative"
           onClick={() => onAssetClick && onAssetClick(asset.id)}
-          onMouseOver={() => console.log(asset.id)}
         >
           <img
             src={`https://img-cdn.magiceden.dev/rs:fill:400:400:0:0/plain/${asset.content?.links?.image}`}
-            className={clsx('aspect-square', {
+            className={clsx('aspect-square w-full', {
               'clip-path': active,
             })}
           />
           {active && triggerLabel && (
             <div className="flex items-center justify-center absolute bottom-0 w-full bg-[#F3E8F2]/53 text-black h-[19%] font-bold">
-              <label className="lg:text-[1rem] md:text-[1.25vw] text-[3vw]">
+              <label className="lg:text-[1rem] md:text-[1.25vw] text-[2vw]">
                 {triggerLabel}
               </label>
             </div>

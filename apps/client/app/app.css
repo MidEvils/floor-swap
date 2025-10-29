@@ -7,6 +7,46 @@
   }
 }
 
+@layer base {
+  @font-face {
+    font-family: GT Pressura Mono;
+    font-weight: normal;
+    src: url(/fonts/GT-Pressura-Mono-Regular-Trial.otf) format('woff');
+  }
+  @font-face {
+    font-family: GT Pressura Mono;
+    font-weight: normal;
+    font-style: italic;
+    src: url(/fonts/GT-Pressura-Mono-Regular-Italic-Trial.otf) format('woff');
+  }
+  @font-face {
+    font-family: GT Pressura Mono;
+    font-weight: lighter;
+    src: url(/fonts/GT-Pressura-Mono-Light-Trial.otf) format('woff');
+  }
+  @font-face {
+    font-family: GT Pressura Mono;
+    font-weight: lighter;
+    font-style: italic;
+    src: url(/fonts/GT-Pressura-Mono-Light-Italic-Trial.otf) format('woff');
+  }
+  @font-face {
+    font-family: GT Pressura Mono;
+    font-weight: bold;
+    src: url(/fonts/GT-Pressura-Mono-Bold-Trial.otf) format('woff');
+  }
+  @font-face {
+    font-family: GT Pressura Mono;
+    font-weight: bold;
+    font-style: italic;
+    src: url(/fonts/GT-Pressura-Mono-Bold-Italic-Trial.otf) format('woff');
+  }
+}
+
+* {
+  font-family: 'GT Pressura Mono', sans-serif;
+}
+
 .clip-path {
   clip-path: polygon(
     0 0,

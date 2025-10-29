@@ -62,7 +62,13 @@ export function Modal({
       )}
 
       <dialog ref={ref} className="modal" onClose={closeModal}>
-        <div className="modal-box md:bg-[url(/modal-bg.svg)] md:w-[unset] w-full overflow-hidden bg-[length:100%_100%] lg:h-3/4 md:h-[unset] h-full max-w-[unset] bg-transparent md:aspect-[4/2.9] w-[unset] bg-cover md:p-10 md:pr-20 overflow-hidden">
+        <button
+          className="cursor-pointer btn btn-md btn-circle absolute right-5 top-5 block md:hidden z-50"
+          onClick={closeModal}
+        >
+          ✕
+        </button>
+        <div className="modal-box md:bg-[url(/modal-bg.svg)] bg-[#DBBD8A] md:w-[unset] w-full overflow-hidden bg-[length:100%_100%] lg:h-3/4 md:h-[unset] h-full max-w-[unset] md:bg-transparent md:aspect-[4/2.9] w-[unset] bg-cover md:p-10 md:pr-20 overflow-hidden">
           {children}
         </div>
 

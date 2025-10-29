@@ -9,11 +9,15 @@
   "compatibility_flags": ["nodejs_compat"],
   "main": "./workers/app.ts",
   "vars": {
-    "AUTHORITY_ADDRESS": "JCapwSzWyHkjuVrT5ZTyKwBHzV9oYrTNhZguAMc9PiEc",
+    "AUTHORITY_ADDRESS": "rHQ8Lox4xee8tbiT8zE2ri1U5tuEGxCodDpYXiGKTri",
     "COLLECTION_ADDRESS": "w44WvLKRdLGye2ghhDJBxcmnWpBo31A1tCBko2G6DgW"
   },
   "observability": {
     "enabled": true
+  },
+  "route": {
+    "pattern": "swap.midevils.com",
+    "custom_domain": true
   },
   /**
    * Smart Placement

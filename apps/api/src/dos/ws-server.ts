@@ -190,7 +190,12 @@ export class WebSocketServer extends DurableObject<Env> {
       return;
     }
 
-    console.log(message);
+    if (message === 'refresh') {
+      await this.getAssets();
+      this._emit(ws);
+    }
+
+    this._txsListener.checkConnected();
   }
 
   async onConnected(ws: WebSocket) {

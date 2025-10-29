@@ -327,7 +327,7 @@ function Withdraw({ account }: { account: UiWalletAccount }) {
   const client = useRpc();
   const signer = useWalletUiSigner({ account });
   const { addAssets } = useAssets();
-  const poolAssets = usePool();
+  const { assets: poolAssets } = usePool();
 
   async function onAction(assets: string[]) {
     const promise = withdraw({
@@ -363,6 +363,7 @@ function Withdraw({ account }: { account: UiWalletAccount }) {
 
 export default function Admin() {
   const { account } = useWalletUiAccount();
+  const { authority } = useSettings();
   const [poolAcc, setPoolAcc] = useState<Account<Pool> | null>(null);
   const client = useRpc();
   const { pool } = useSettings();
@@ -379,7 +380,19 @@ export default function Admin() {
   }, []);
 
   if (!account) {
-    return <Wallet />;
+    return (
+      <Container>
+        <Wallet />
+      </Container>
+    );
+  }
+
+  if (account.address !== authority) {
+    return (
+      <Container>
+        <p className="text-xl text-red font-bold text-center">Unauthorized</p>
+      </Container>
+    );
   }
 
   return (
