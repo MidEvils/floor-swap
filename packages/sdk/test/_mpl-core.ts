@@ -15,7 +15,7 @@ import { DataState } from '@metaplex-foundation/mpl-core';
 import {
   getCreateCollectionV2Instruction,
   getCreateV2Instruction,
-} from '../sdks/mpl-core/generated';
+} from '../../mpl-core/generated';
 
 export async function createCoreCollection(
   client: Client,

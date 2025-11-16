@@ -71,7 +71,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body className="bg-gradient-to-b from-[#2E1804] to-[#4B2603] h-full flex flex-col">
         <PoolProvider wsUrl={wsUrl}>
-          <WalletUiProvider>
+          <WalletUiProvider rpcUrl={rpcUrl}>
             <RpcProvider rpcUrl={rpcUrl || ''}>
               <SettingsProvider
                 collection={collection}
