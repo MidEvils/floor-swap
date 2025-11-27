@@ -42,6 +42,7 @@ export const AssetsProvider = ({
         .searchAssets({
           ownerAddress: owner,
           grouping: ['colllection', collection],
+          burnt: false,
         })
         .send();
 
