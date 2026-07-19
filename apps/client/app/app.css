@@ -47,6 +47,20 @@
   font-family: 'GT Pressura Mono', sans-serif;
 }
 
+/* The "Swap" affordance shows on hover on pointer devices; touch devices have
+   no hover, so show it there always. */
+.swap-label {
+  display: none;
+}
+.swap-label.is-active {
+  display: flex;
+}
+@media (hover: none) {
+  .swap-label {
+    display: flex;
+  }
+}
+
 .clip-path {
   clip-path: polygon(
     0 0,

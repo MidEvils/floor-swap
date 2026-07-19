@@ -79,7 +79,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 pool={pool}
               >
                 <Header authority={authority} />
-                <main className="py-10 px-10 w-full overflow-hidden">
+                <main className="py-4 px-4 md:py-10 md:px-10 w-full overflow-hidden">
                   {children}
                 </main>
               </SettingsProvider>

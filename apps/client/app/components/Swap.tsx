@@ -38,7 +38,7 @@ export const Swap = ({
 }) => {
   const [selected, setSelected] = useState<string>();
   const signer = useWalletUiSigner({ account });
-  const { assets, addAssets, removeAssets } = useAssets();
+  const { assets, addAssets, removeAssets, loading, error } = useAssets();
   const client = useRpc();
   const { collection, pool } = useSettings();
   const navigate = useNavigate();
@@ -67,18 +67,27 @@ export const Swap = ({
       destAsset: address(toAsset.id),
     });
 
-    onClose();
-
     toast.promise(promise, {
       loading: 'Swapping Mids',
       success: 'Swapped successfully',
-      error: (err) => err.message || 'Error closing pool',
+      // Some errors are thrown as raw strings; surface those too, and default
+      // to swap-appropriate copy (this used to say "Error closing pool").
+      error: (err) =>
+        (typeof err === 'string' ? err : err?.message) || 'Swap failed',
     });
 
-    await promise;
+    try {
+      await promise;
+    } catch {
+      // Keep the modal open on failure so the user keeps context; the toast
+      // already explains what went wrong.
+      return;
+    }
+
     addAssets([toAsset]);
     removeAssets([fromAsset.id]);
     setSelected(undefined);
+    onClose();
     navigate('/');
   }
 
@@ -113,6 +122,8 @@ export const Swap = ({
             selected={selected ? [selected] : []}
             onItemClick={onSelectedChange}
             size="sm"
+            loading={loading}
+            error={error}
           />
         )}
       </div>
