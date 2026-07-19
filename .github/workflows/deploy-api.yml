@@ -20,9 +20,11 @@ jobs:
         run: npm i -g pnpm && pnpm install --frozen-lockfile
 
       # @midevils/sdk's package entry points at dist/, which isn't in the repo,
-      # so the worker bundle can't resolve it until the package is built.
+      # so the worker bundle can't resolve it until the package is built. Run
+      # tsup only (the JS bundle) and skip the package `build`'s tsc declaration
+      # step, which fails on stale generated types and isn't needed to bundle.
       - name: Build SDK client
-        run: pnpm --filter @midevils/sdk build
+        run: pnpm --filter @midevils/sdk exec tsup
 
       - name: 'Build and deploy API'
         uses: cloudflare/wrangler-action@v3
