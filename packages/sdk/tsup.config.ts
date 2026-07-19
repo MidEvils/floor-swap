@@ -23,13 +23,4 @@ export default defineConfig(() => [
     format: 'cjs',
     outDir: './dist/test',
   },
-
-  // SDKs
-  {
-    ...SHARED_OPTIONS,
-    bundle: false,
-    entry: ['./sdks/mpl-core/generated/**/*.ts'],
-    format: 'cjs',
-    outDir: './dist/sdks/mpl-core/generated',
-  },
 ]);
