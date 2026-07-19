@@ -1,0 +1,40 @@
+name: Fix client WS_URL
+on:
+  workflow_dispatch:
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.9.0
+
+      - name: Discover api worker URL
+        id: discover
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          SUB=$(curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | jq -r '.result.subdomain')
+          if [ -z "$SUB" ] || [ "$SUB" = "null" ]; then
+            echo "Could not read workers.dev subdomain from Cloudflare API"
+            exit 1
+          fi
+          echo "api worker URL: https://api.$SUB.workers.dev"
+          CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "https://api.$SUB.workers.dev/")
+          echo "probe returned HTTP $CODE (expected 500 'WebSocket connection failed' for non-WS request)"
+          echo "ws_url=wss://api.$SUB.workers.dev" >> "$GITHUB_OUTPUT"
+
+      - name: Install npm dependencies
+        run: npm i -g pnpm && pnpm install
+
+      - name: Set client WS_URL secret
+        working-directory: apps/client
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: echo "${{ steps.discover.outputs.ws_url }}" | pnpm exec wrangler secret put WS_URL
