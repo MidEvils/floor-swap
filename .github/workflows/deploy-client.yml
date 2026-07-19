@@ -14,7 +14,10 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v3
         with:
-          node-version: 22.9.0
+          # Node 22.9 ships a cjs-module-lexer that fails to detect wrangler's
+          # named exports, breaking @cloudflare/vite-plugin's ESM import during
+          # the vite build. Node 24 detects them.
+          node-version: 24
 
       - name: Install npm dependencies
         run: npm i -g pnpm && pnpm install --frozen-lockfile
