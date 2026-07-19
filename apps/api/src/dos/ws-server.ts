@@ -16,6 +16,10 @@ import { getAssetV1Decoder } from '@midevils/mpl-core';
 
 const MAX_DELETES = 128;
 const MAX_PUTS = 128;
+// Serve connections/refreshes from the in-memory cache and only hit Helius when
+// the cache is empty or older than this. The tx listener keeps it fresher than
+// the TTL in practice; this is the ceiling on how stale a served list can be.
+const CACHE_TTL_MS = 60_000;
 
 export class WebSocketServer extends DurableObject<Env> {
   private _connectedClients: Map<WebSocket, { connectionId: string }>;
@@ -30,6 +34,8 @@ export class WebSocketServer extends DurableObject<Env> {
     toAdd: [],
   };
   pool: Address | null = null;
+  private _lastFetch = 0;
+  private _refreshing: Promise<void> | null = null;
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
@@ -90,8 +96,15 @@ export class WebSocketServer extends DurableObject<Env> {
   }
 
   async addAsset(address: Address) {
-    const asset = await this._rpc.getAsset({ id: address }).send();
-    this.staged.toAdd.push(asset);
+    try {
+      const asset = await this._rpc.getAsset({ id: address }).send();
+      this.staged.toAdd.push(asset);
+    } catch (e) {
+      // A transient getAsset failure must not propagate: this runs inside the
+      // tx-listener's DO RPC call, and an unhandled throw there tears down and
+      // resubscribes the whole Helius subscription, dropping this event.
+      console.error('addAsset: getAsset failed', e);
+    }
   }
 
   async handleWebSocketUpgrade(): Promise<Response> {
@@ -123,6 +136,7 @@ export class WebSocketServer extends DurableObject<Env> {
     return res;
   }
 
+  // Force a fresh Helius fetch. Used on cold start and by the periodic alarm.
   async getAssets() {
     const assets = await this._rpc
       .searchAssets({
@@ -132,8 +146,23 @@ export class WebSocketServer extends DurableObject<Env> {
       .send();
 
     this._assets = new Map(assets.items.map((a) => [a.id, a]));
+    this._lastFetch = Date.now();
     this.ctx.waitUntil(this._save());
     this._emit();
+  }
+
+  // Refresh from Helius only when the cache is empty or stale, and share one
+  // in-flight fetch across concurrent callers (so N simultaneous reconnects
+  // cost one searchAssets, not N).
+  private ensureAssets(): Promise<void> {
+    const fresh =
+      this._assets.size > 0 && Date.now() - this._lastFetch < CACHE_TTL_MS;
+    if (fresh) return Promise.resolve();
+    if (this._refreshing) return this._refreshing;
+    this._refreshing = this.getAssets().finally(() => {
+      this._refreshing = null;
+    });
+    return this._refreshing;
   }
 
   private async _save() {
@@ -166,14 +195,32 @@ export class WebSocketServer extends DurableObject<Env> {
   }
 
   private _emit(ws?: WebSocket) {
+    const payload = JSON.stringify(this.list());
     if (ws) {
-      ws.send(JSON.stringify(this.list()));
-    } else {
-      for (const [ws] of this._connectedClients.entries()) {
-        console.log('sending');
-        ws.send(JSON.stringify(this.list()));
-      }
+      this._safeSend(ws, payload);
+      return;
     }
+    for (const [client] of this._connectedClients.entries()) {
+      this._safeSend(client, payload);
+    }
+  }
+
+  // send() throws on a CLOSING/CLOSED socket; a dead client must not abort the
+  // broadcast for everyone else, so drop it from the map instead.
+  private _safeSend(ws: WebSocket, payload: string) {
+    try {
+      ws.send(payload);
+    } catch {
+      this._connectedClients.delete(ws);
+    }
+  }
+
+  async webSocketClose(ws: WebSocket) {
+    this._connectedClients.delete(ws);
+  }
+
+  async webSocketError(ws: WebSocket) {
+    this._connectedClients.delete(ws);
   }
 
   list() {
@@ -191,7 +238,8 @@ export class WebSocketServer extends DurableObject<Env> {
     }
 
     if (message === 'refresh') {
-      await this.getAssets();
+      // Serve the cached list immediately; only re-fetch if stale (single-flight).
+      this.ctx.waitUntil(this.ensureAssets());
       this._emit(ws);
     }
 
@@ -200,8 +248,9 @@ export class WebSocketServer extends DurableObject<Env> {
 
   async onConnected(ws: WebSocket) {
     this._txsListener.checkConnected();
-    await this.getAssets();
+    // Serve what we already have, then refresh in the background if stale.
     this._emit(ws);
+    this.ctx.waitUntil(this.ensureAssets());
   }
 
   alarm() {

@@ -10,6 +10,8 @@ export const AssetCarousel = ({
   onItemClick,
   size = 'md',
   vertical = false,
+  loading = false,
+  error = false,
 }: {
   triggerLabel: ReactNode;
   assets: DasAsset[];
@@ -17,7 +19,23 @@ export const AssetCarousel = ({
   onItemClick: (id: string) => void;
   size: 'sm' | 'md' | 'lg';
   vertical?: boolean;
+  loading?: boolean;
+  error?: boolean;
 }) => {
+  if (loading) {
+    return (
+      <p className="text-xl text-black font-bold text-center">Loading…</p>
+    );
+  }
+
+  if (error) {
+    return (
+      <p className="text-xl text-black font-bold text-center">
+        Couldn’t load your MidEvils — please try again.
+      </p>
+    );
+  }
+
   if (!assets.length) {
     return (
       <p className="text-xl text-black font-bold text-center">
@@ -37,7 +55,7 @@ export const AssetCarousel = ({
       >
         {assets.map((asset) => {
           return (
-            <div className={clsx('h-full aspect-square', {})}>
+            <div key={asset.id} className={clsx('h-full aspect-square', {})}>
               <Asset
                 asset={asset}
                 onAssetClick={onItemClick}

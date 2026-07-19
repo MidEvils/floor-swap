@@ -12,7 +12,7 @@ export default function Home() {
       <div className="flex gap-1 justify-between items-center">
         <div className="flex gap-1">
           <button
-            className="border-2 border-red p-2 h-10 cursor-pointer flex text-red gap-2 font-bold"
+            className="border-2 border-red p-2 h-11 cursor-pointer flex text-red gap-2 font-bold"
             onClick={refresh}
           >
             <span className={clsx({ 'animate-spin': loading })}>
@@ -21,13 +21,13 @@ export default function Home() {
             {`${assets.length} Item${assets.length === 1 ? '' : 's'}`}
           </button>
           <button
-            className="border-2 border-red p-2 w-10 h-10 block cursor-pointer"
+            className="border-2 border-red p-2 w-11 h-11 block cursor-pointer"
             onClick={() => setSize('small')}
           >
             <img src="/grid-sm.svg" className="block" />
           </button>
           <button
-            className="border-2 border-red p-2 w-10 h-10 block cursor-pointer"
+            className="border-2 border-red p-2 w-11 h-11 block cursor-pointer"
             onClick={() => setSize('large')}
           >
             <img src="/grid-lg.svg" className="block" />

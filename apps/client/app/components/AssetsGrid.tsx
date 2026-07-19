@@ -44,9 +44,9 @@ const PoolAsset = ({
             className={clsx(
               'bg-[#DBBD8A] text-black border-2 border-t-0 py-2 font-bold',
               {
-                'text-[4vw] sm:text-[2vw] md:text-[1.5vw] lg:text-[1vw]':
+                'text-sm sm:text-[2vw] md:text-[1.5vw] lg:text-[1vw]':
                   size === 'large',
-                'text-[2vw] sm:text-[1.5vw] md:text-[1vw] lg:text-[0.75vw] xl:text-[0.5vw]':
+                'text-xs sm:text-[1.5vw] md:text-[1vw] lg:text-[0.75vw] xl:text-[0.5vw]':
                   size === 'small',
               }
             )}
@@ -83,7 +83,12 @@ export const AssetsGrid = ({ size }: { size: 'large' | 'small' }) => {
           })}
         >
           {assets.map((asset) => (
-            <PoolAsset asset={asset} size={size} account={account} />
+            <PoolAsset
+              key={asset.id}
+              asset={asset}
+              size={size}
+              account={account}
+            />
           ))}
         </div>
       </div>

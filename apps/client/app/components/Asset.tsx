@@ -28,13 +28,20 @@ export const Asset = ({
         >
           <img
             src={`https://img-cdn.magiceden.dev/rs:fill:400:400:0:0/plain/${asset.content?.links?.image}`}
+            loading="lazy"
+            decoding="async"
             className={clsx('aspect-square w-full', {
               'clip-path': active,
             })}
           />
-          {active && triggerLabel && (
-            <div className="flex items-center justify-center absolute bottom-0 w-full bg-[#F3E8F2]/53 text-black h-[19%] font-bold">
-              <label className="lg:text-[1rem] md:text-[1.25vw] text-[2vw]">
+          {triggerLabel && (
+            <div
+              className={clsx(
+                'swap-label items-center justify-center absolute bottom-0 w-full bg-[#F3E8F2]/53 text-black h-[19%] font-bold',
+                { 'is-active': active }
+              )}
+            >
+              <label className="lg:text-[1rem] md:text-[1.25vw] text-sm">
                 {triggerLabel}
               </label>
             </div>

@@ -68,7 +68,7 @@ export function Modal({
         >
           ✕
         </button>
-        <div className="modal-box md:bg-[url(/modal-bg.svg)] bg-[#DBBD8A] md:w-[unset] w-full overflow-hidden bg-[length:100%_100%] lg:h-3/4 md:h-[unset] h-full max-w-[unset] md:bg-transparent md:aspect-[4/2.9] w-[unset] bg-cover md:p-10 md:pr-20 overflow-hidden">
+        <div className="modal-box md:bg-[url(/modal-bg.svg)] bg-[#DBBD8A] w-full md:w-[unset] bg-[length:100%_100%] lg:h-3/4 md:h-[unset] h-full max-w-[unset] md:bg-transparent md:aspect-[4/2.9] bg-cover md:p-10 md:pr-20 overflow-hidden">
           {children}
         </div>
 
